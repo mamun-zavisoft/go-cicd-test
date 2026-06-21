@@ -30,10 +30,10 @@ func TestNewJWTServiceWithConfig(t *testing.T) {
 
 func TestLoadJWTConfig(t *testing.T) {
 	// Test with environment variables set
-	os.Setenv("JWT_ACCESS_SECRET_KEY", "custom_access_secret")
-	os.Setenv("JWT_REFRESH_SECRET_KEY", "custom_refresh_secret")
-	os.Setenv("JWT_ACCESS_TIME_MINUTE", "45")
-	os.Setenv("JWT_REFRESH_TIME_HOUR", "48")
+	_ = os.Setenv("JWT_ACCESS_SECRET_KEY", "custom_access_secret")
+	_ = os.Setenv("JWT_REFRESH_SECRET_KEY", "custom_refresh_secret")
+	_ = os.Setenv("JWT_ACCESS_TIME_MINUTE", "45")
+	_ = os.Setenv("JWT_REFRESH_TIME_HOUR", "48")
 
 	config := loadJWTConfig()
 	assert.Equal(t, "custom_access_secret", config.AccessSecret)
@@ -42,10 +42,10 @@ func TestLoadJWTConfig(t *testing.T) {
 	assert.Equal(t, int64(48), config.RefreshTime)
 
 	// Clean up
-	os.Unsetenv("JWT_ACCESS_SECRET_KEY")
-	os.Unsetenv("JWT_REFRESH_SECRET_KEY")
-	os.Unsetenv("JWT_ACCESS_TIME_MINUTE")
-	os.Unsetenv("JWT_REFRESH_TIME_HOUR")
+	_ = os.Unsetenv("JWT_ACCESS_SECRET_KEY")
+	_ = os.Unsetenv("JWT_REFRESH_SECRET_KEY")
+	_ = os.Unsetenv("JWT_ACCESS_TIME_MINUTE")
+	_ = os.Unsetenv("JWT_REFRESH_TIME_HOUR")
 }
 
 func TestGenerateJWTToken_Access(t *testing.T) {
