@@ -27,7 +27,7 @@ const (
 	TokenGeneratorError        ErrorType    = "TokenGeneratorError"
 	
 	// #nosec G101
-	tokenGeneratorErrorMessage ErrorMessage = "error in token generation"
+	tokenGeneratorErrorMessage ErrorMessage = "error in tkn generation"
 
 	NotAuthorized             ErrorType    = "NotAuthorized"
 	notAuthorizedErrorMessage ErrorMessage = "not authorized"
