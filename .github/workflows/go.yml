@@ -134,9 +134,7 @@ jobs:
         run: |
           CGO_ENABLED=0 GOOS=linux \
           go build \
-          -ldflags="-s -w" \
           -o app \
-          ./cmd/api
 
       - name: Upload Binary
         uses: actions/upload-artifact@v4
