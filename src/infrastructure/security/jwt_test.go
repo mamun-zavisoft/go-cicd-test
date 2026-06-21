@@ -380,7 +380,7 @@ func TestGetClaimsAndVerifyToken_TokenWithMissingExpiration(t *testing.T) {
 
 func TestGetEnvOrDefault(t *testing.T) {
 	// Test with environment variable set
-	os.Setenv("TEST_KEY", "test_value")
+	_ = os.Setenv("TEST_KEY", "test_value")
 	result := getEnvOrDefault("TEST_KEY", "default_value")
 	assert.Equal(t, "test_value", result)
 
@@ -394,12 +394,12 @@ func TestGetEnvOrDefault(t *testing.T) {
 
 func TestGetEnvAsInt64OrDefault(t *testing.T) {
 	// Test with valid integer environment variable
-	os.Setenv("TEST_INT", "123")
+	_ = os.Setenv("TEST_INT", "123")
 	result := getEnvAsInt64OrDefault("TEST_INT", 456)
 	assert.Equal(t, int64(123), result)
 
 	// Test with invalid integer environment variable
-	os.Setenv("TEST_INVALID", "not_a_number")
+	_ = os.Setenv("TEST_INVALID", "not_a_number")
 	result = getEnvAsInt64OrDefault("TEST_INVALID", 456)
 	assert.Equal(t, int64(456), result)
 
@@ -409,7 +409,7 @@ func TestGetEnvAsInt64OrDefault(t *testing.T) {
 
 	// Clean up
 	_ = os.Unsetenv("TEST_INT")
-	os.Unsetenv("TEST_INVALID")
+	_ = os.Unsetenv("TEST_INVALID")
 }
 
 func TestJWTService_InterfaceCompliance(t *testing.T) {
