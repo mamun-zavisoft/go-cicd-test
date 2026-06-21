@@ -24,8 +24,9 @@ const (
 	NotAuthenticated             ErrorType    = "NotAuthenticated"
 	notAuthenticatedErrorMessage ErrorMessage = "not Authenticated"
 
-	TokenGenError        ErrorType    = "TokenGeneratorError"
-	tokenGenErrorMessage ErrorMessage = "error in token generation"
+	// #nosec G101
+	TokenGeneratorError        ErrorType    = "TokenGeneratorError"
+	tokenGeneratorErrorMessage ErrorMessage = "error in token generation"
 
 	NotAuthorized             ErrorType    = "NotAuthorized"
 	notAuthorizedErrorMessage ErrorMessage = "not authorized"
