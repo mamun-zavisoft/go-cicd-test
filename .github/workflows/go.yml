@@ -105,9 +105,7 @@ jobs:
           go install github.com/securego/gosec/v2/cmd/gosec@latest
 
       - name: Run Gosec
-        run: |
-        gosec -exclude=G101 ./...
-        $(go env GOPATH)/bin/gosec ./...
+        run: $(go env GOPATH)/bin/gosec -exclude=G101 ./...
 
       - name: Trivy Scan
         uses: aquasecurity/trivy-action@master
