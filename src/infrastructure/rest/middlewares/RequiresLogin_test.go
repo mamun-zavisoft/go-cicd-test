@@ -60,7 +60,7 @@ func TestAuthJWTMiddleware_InvalidToken(t *testing.T) {
 	// Set JWT_ACCESS_SECRET_KEY
 	originalSecret := os.Getenv("JWT_ACCESS_SECRET_KEY")
 	os.Setenv("JWT_ACCESS_SECRET_KEY", "test-secret")
-	defer os.Setenv("JWT_ACCESS_SECRET_KEY", originalSecret)
+	defer func() { _ = os.Setenv("JWT_ACCESS_SECRET_KEY", originalSecret) }()
 
 	c, w := setupGinContext()
 	c.Request = httptest.NewRequest("GET", "/protected", nil)
@@ -80,7 +80,7 @@ func TestAuthJWTMiddleware_InvalidToken(t *testing.T) {
 func TestAuthJWTMiddleware_ExpiredToken(t *testing.T) {
 	// Set JWT_ACCESS_SECRET_KEY
 	originalSecret := os.Getenv("JWT_ACCESS_SECRET_KEY")
-	os.Setenv("JWT_ACCESS_SECRET_KEY", "test-secret")
+	_ = os.Setenv("JWT_ACCESS_SECRET_KEY", "test-secret")
 	defer os.Setenv("JWT_ACCESS_SECRET_KEY", originalSecret)
 
 	// Create expired token
