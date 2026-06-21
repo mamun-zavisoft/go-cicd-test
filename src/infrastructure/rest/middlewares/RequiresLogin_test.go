@@ -110,8 +110,8 @@ func TestAuthJWTMiddleware_ExpiredToken(t *testing.T) {
 func TestAuthJWTMiddleware_InvalidTokenClaims(t *testing.T) {
 	// Set JWT_ACCESS_SECRET_KEY
 	originalSecret := os.Getenv("JWT_ACCESS_SECRET_KEY")
-	os.Setenv("JWT_ACCESS_SECRET_KEY", "test-secret")
-	defer os.Setenv("JWT_ACCESS_SECRET_KEY", originalSecret)
+	_ = os.Setenv("JWT_ACCESS_SECRET_KEY", "test-secret")
+	defer func() { _ = os.Setenv("JWT_ACCESS_SECRET_KEY", originalSecret) }()
 
 	// Create token without exp claim
 	claims := jwt.MapClaims{
@@ -138,7 +138,7 @@ func TestAuthJWTMiddleware_InvalidTokenClaims(t *testing.T) {
 func TestAuthJWTMiddleware_WrongTokenType(t *testing.T) {
 	// Set JWT_ACCESS_SECRET_KEY
 	originalSecret := os.Getenv("JWT_ACCESS_SECRET_KEY")
-	os.Setenv("JWT_ACCESS_SECRET_KEY", "test-secret")
+	_ = os.Setenv("JWT_ACCESS_SECRET_KEY", "test-secret")
 	defer os.Setenv("JWT_ACCESS_SECRET_KEY", originalSecret)
 
 	// Create token with wrong type
