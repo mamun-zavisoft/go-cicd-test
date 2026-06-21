@@ -25,6 +25,7 @@ const (
 	notAuthenticatedErrorMessage ErrorMessage = "not Authenticated"
 
 	TokenGeneratorError        ErrorType    = "TokenGeneratorError"
+	// #nosic G101
 	tokenGeneratorErrorMessage ErrorMessage = "error in token generation"
 
 	NotAuthorized             ErrorType    = "NotAuthorized"
