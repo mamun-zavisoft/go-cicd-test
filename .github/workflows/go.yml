@@ -106,7 +106,8 @@ jobs:
 
       - name: Run Gosec
         run: |
-          $(go env GOPATH)/bin/gosec ./...
+        gosec -exclude=G101 ./...
+        $(go env GOPATH)/bin/gosec ./...
 
       - name: Trivy Scan
         uses: aquasecurity/trivy-action@master
