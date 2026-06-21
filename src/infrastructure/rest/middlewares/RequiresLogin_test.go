@@ -195,8 +195,8 @@ func TestAuthJWTMiddleware_MissingTokenType(t *testing.T) {
 func TestAuthJWTMiddleware_ValidToken(t *testing.T) {
 	// Set JWT_ACCESS_SECRET_KEY
 	originalSecret := os.Getenv("JWT_ACCESS_SECRET_KEY")
-	os.Setenv("JWT_ACCESS_SECRET_KEY", "test-secret")
-	defer os.Setenv("JWT_ACCESS_SECRET_KEY", originalSecret)
+	_ = os.Setenv("JWT_ACCESS_SECRET_KEY", "test-secret")
+	defer func() { _ = os.Setenv("JWT_ACCESS_SECRET_KEY", originalSecret) }()
 
 	// Create valid token
 	claims := jwt.MapClaims{
@@ -221,7 +221,7 @@ func TestAuthJWTMiddleware_TokenWithoutBearer(t *testing.T) {
 	// Set JWT_ACCESS_SECRET_KEY
 	originalSecret := os.Getenv("JWT_ACCESS_SECRET_KEY")
 	_ = os.Setenv("JWT_ACCESS_SECRET_KEY", "test-secret")
-	defer os.Setenv("JWT_ACCESS_SECRET_KEY", originalSecret)
+	defer func() { _ = os.Setenv("JWT_ACCESS_SECRET_KEY", originalSecret) }()
 
 	// Create valid token
 	claims := jwt.MapClaims{
