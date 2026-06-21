@@ -1,28 +1,206 @@
-# This workflow will build a golang project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
-
-name: Go
+name: Go CI/CD Pipeline
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
+      - develop
+
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
+      - develop
+
+permissions:
+  contents: read
+  security-events: write
+
+env:
+  GO_VERSION: "1.24"
 
 jobs:
 
-  build:
+  quality:
+
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v3
 
-    - name: Set up Go
-      uses: actions/setup-go@v3
-      with:
-        go-version: 1.24
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-    - name: Build
-      run: go build -v ./...
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
 
-    - name: Test
-      run: go test -v ./...
+      - name: Cache Go Modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+
+      - name: Verify Dependencies
+        run: go mod verify
+
+      - name: Go Vet
+        run: go vet ./...
+
+      - name: Install GolangCI-Lint
+        uses: golangci/golangci-lint-action@v8
+        with:
+          version: latest
+
+      - name: Run Linter
+        run: golangci-lint run
+
+  test:
+
+    needs: quality
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Run Unit Tests
+        run: |
+          go test ./... \
+            -v \
+            -coverprofile=coverage.out
+
+      - name: Race Detection
+        run: |
+          go test ./... -race
+
+      - name: Upload Coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage.out
+
+  security:
+
+    needs: test
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Install Gosec
+        run: |
+          go install github.com/securego/gosec/v2/cmd/gosec@latest
+
+      - name: Run Gosec
+        run: |
+          $(go env GOPATH)/bin/gosec ./...
+
+      - name: Trivy Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: .
+
+  build:
+
+    needs: security
+
+    runs-on: ubuntu-latest
+
+    outputs:
+      image_tag: ${{ github.sha }}
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Build Binary
+        run: |
+          CGO_ENABLED=0 GOOS=linux \
+          go build \
+          -ldflags="-s -w" \
+          -o app \
+          ./cmd/api
+
+      - name: Upload Binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: app
+          path: app
+
+  docker:
+
+    needs: build
+
+    runs-on: ubuntu-latest
+
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - name: Login DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and Push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/go-app:latest
+            ${{ secrets.DOCKER_USERNAME }}/go-app:${{ github.sha }}
+
+  deploy:
+
+    needs: docker
+
+    runs-on: ubuntu-latest
+
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+
+            docker pull \
+            ${{ secrets.DOCKER_USERNAME }}/go-app:latest
+
+            docker stop go-app || true
+            docker rm go-app || true
+
+            docker run -d \
+              --name go-app \
+              -p 8080:8080 \
+              --restart unless-stopped \
+              ${{ secrets.DOCKER_USERNAME }}/go-app:latest
