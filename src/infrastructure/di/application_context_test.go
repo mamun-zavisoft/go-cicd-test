@@ -159,7 +159,7 @@ func TestSetupDependencies(t *testing.T) {
 	// We'll test the error path by setting invalid environment variables
 	originalPort := os.Getenv("DB_PORT")
 	_ = os.Setenv("DB_PORT", "99999") // Invalid port to cause connection failure
-	defer func() { _ = os.Setenv("DB_PORT", originalPort)}
+	t.Cleanup(func() { _ = os.Setenv("DB_PORT", originalPort) })
 
 	logger := setupLogger(t)
 	appContext, err := SetupDependencies(logger)
