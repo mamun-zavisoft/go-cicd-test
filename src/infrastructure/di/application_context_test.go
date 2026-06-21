@@ -158,8 +158,8 @@ func TestSetupDependencies(t *testing.T) {
 	// This test will fail in CI/CD without a real database connection
 	// We'll test the error path by setting invalid environment variables
 	originalPort := os.Getenv("DB_PORT")
-	os.Setenv("DB_PORT", "99999") // Invalid port to cause connection failure
-	defer os.Setenv("DB_PORT", originalPort)
+	_ = os.Setenv("DB_PORT", "99999") // Invalid port to cause connection failure
+	defer func() { _ = os.Setenv("DB_PORT", originalPort)}
 
 	logger := setupLogger(t)
 	appContext, err := SetupDependencies(logger)

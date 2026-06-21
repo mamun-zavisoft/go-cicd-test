@@ -389,7 +389,7 @@ func TestGetEnvOrDefault(t *testing.T) {
 	assert.Equal(t, "default_value", result)
 
 	// Clean up
-	os.Unsetenv("TEST_KEY")
+	_ = os.Unsetenv("TEST_KEY")
 }
 
 func TestGetEnvAsInt64OrDefault(t *testing.T) {
@@ -408,7 +408,7 @@ func TestGetEnvAsInt64OrDefault(t *testing.T) {
 	assert.Equal(t, int64(789), result)
 
 	// Clean up
-	os.Unsetenv("TEST_INT")
+	_ = os.Unsetenv("TEST_INT")
 	os.Unsetenv("TEST_INVALID")
 }
 

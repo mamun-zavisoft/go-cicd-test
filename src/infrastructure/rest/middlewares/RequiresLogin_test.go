@@ -38,8 +38,8 @@ func TestAuthJWTMiddleware_NoToken(t *testing.T) {
 func TestAuthJWTMiddleware_NoJWTSecret(t *testing.T) {
 	// Clear JWT_ACCESS_SECRET_KEY
 	originalSecret := os.Getenv("JWT_ACCESS_SECRET_KEY")
-	os.Unsetenv("JWT_ACCESS_SECRET_KEY")
-	defer os.Setenv("JWT_ACCESS_SECRET_KEY", originalSecret)
+	_ = os.Unsetenv("JWT_ACCESS_SECRET_KEY")
+	defer fuun() { _= os.Setenv("JWT_ACCESS_SECRET_KEY", originalSecret) }
 
 	c, w := setupGinContext()
 	c.Request = httptest.NewRequest("GET", "/protected", nil)
